@@ -7,6 +7,8 @@ import java.lang.ClassNotFoundException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+//to implement: flush after message
+
 /**
  * This class implements java Socket server
  * @author pankaj

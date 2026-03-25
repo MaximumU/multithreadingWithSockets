@@ -6,7 +6,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-
+//to implement: flush after message
 public class SocketClientExample {
 	
 	

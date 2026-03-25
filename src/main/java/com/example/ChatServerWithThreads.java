@@ -2,7 +2,7 @@ package com.example;
 
 import java.net.*;
 import java.io.*;
-import java.util.Date;
+import java.util.*;
 
 /**
  * This program is a server that takes connection requests on
@@ -21,12 +21,15 @@ public class ChatServerWithThreads {
 
     public static void main(String[] args) {
 
+        int portNumber = 52000;
+
         ServerSocket listener;  // Listens for incoming connections.
         Socket connection;      // For communication with the connecting program.
 
         /* Accept and process connections forever, or until some error occurs. */
 
         try {
+            Socket socket = new Socket("localhost",portNumber);
             listener = new ServerSocket(LISTENING_PORT);
             System.out.println("Listening on port " + LISTENING_PORT);
             while (true) {
@@ -47,15 +50,31 @@ public class ChatServerWithThreads {
      *  client.
      */
     private static class ConnectionHandler extends Thread {
+        private static ArrayList<ConnectionHandler> connectionList;
         Socket client;
+        ObjectOutputStream oos;
+        ObjectInputStream ois;
+        InputStreamReader isr = new InputStreamReader(ois);
+        BufferedReader br = new BufferedReader(isr);
+        String message = br.readLine();
+        System.out.println(message);
         ConnectionHandler(Socket socket) {
             client = socket;
+            if(connectionList == null)
+                connectionList = new ArrayList<ConnectionHandler>();
+            connectionList.add(this);
+            try{
+                ois = new ObjectInputStream(client.getInputStream());
+                oos = new ObjectOutputStream(client.getOutputStream());
+            }
+            catch(IOException e){}
         }
         public void run() {
             String clientAddress = client.getInetAddress().toString();
             while(true) {
 	            try {
 	            	//your code to send messages goes here.
+
 	            }
 	            catch (Exception e){
 	                System.out.println("Error on connection with: " 
