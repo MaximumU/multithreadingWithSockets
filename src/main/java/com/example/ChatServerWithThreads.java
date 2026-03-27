@@ -17,11 +17,11 @@ import java.util.*;
  */
 public class ChatServerWithThreads {
 
-    public static final int LISTENING_PORT = 9876;
+    public static final int LISTENING_PORT = 52000;
 
     public static void main(String[] args) {
 
-        int portNumber = 52000;
+       
 
         ServerSocket listener;  // Listens for incoming connections.
         Socket connection;      // For communication with the connecting program.
@@ -29,11 +29,12 @@ public class ChatServerWithThreads {
         /* Accept and process connections forever, or until some error occurs. */
 
         try {
-            Socket socket = new Socket("localhost",portNumber);
             listener = new ServerSocket(LISTENING_PORT);
             System.out.println("Listening on port " + LISTENING_PORT);
             while (true) {
-                  // Accept next connection request and handle it.
+                  connection = listener.accept();
+                  ConnectionHandler h = new ConnectionHandler(connection);
+                  h.start();
             }
         }
         catch (Exception e) {
@@ -54,10 +55,7 @@ public class ChatServerWithThreads {
         Socket client;
         ObjectOutputStream oos;
         ObjectInputStream ois;
-        InputStreamReader isr = new InputStreamReader(ois);
-        BufferedReader br = new BufferedReader(isr);
-        String message = br.readLine();
-        System.out.println(message);
+
         ConnectionHandler(Socket socket) {
             client = socket;
             if(connectionList == null)
@@ -66,6 +64,7 @@ public class ChatServerWithThreads {
             try{
                 ois = new ObjectInputStream(client.getInputStream());
                 oos = new ObjectOutputStream(client.getOutputStream());
+                //buffered stuff goes here if you want
             }
             catch(IOException e){}
         }
@@ -73,8 +72,11 @@ public class ChatServerWithThreads {
             String clientAddress = client.getInetAddress().toString();
             while(true) {
 	            try {
-	            	//your code to send messages goes here.
-
+	            	String message = (String)ois.readObject();
+                    for(ConnectionHandler h : connectionList){
+                        h.oos.writeObject(message);
+                        h.oos.flush();
+                    }
 	            }
 	            catch (Exception e){
 	                System.out.println("Error on connection with: " 
