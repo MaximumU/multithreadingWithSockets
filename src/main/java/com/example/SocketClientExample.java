@@ -29,8 +29,14 @@ public class SocketClientExample {
      *  ****HINT**** you may wish to have a thread be in charge of sending information
      *  and another thread in charge of receiving information.
     */
+
+    public static int numUsers;
+
+
     public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException, InterruptedException{
         //get the localhost IP address, if server is running on some other IP, you need to use that
+        numUsers ++;
+        int clientNum = numUsers;
         InetAddress host = InetAddress.getLocalHost();
         Socket socket = new Socket(host.getHostName(), 52000);
             //write to socket using ObjectOutputStream
@@ -53,7 +59,7 @@ public class SocketClientExample {
         textField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                label.setText(textField.getText());
+                label.setText("User " + clientNum + ": " + textField.getText());
                 textField.setText("");
             }
         });
