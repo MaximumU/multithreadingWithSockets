@@ -11,7 +11,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -30,44 +34,50 @@ public class SocketClientExample {
      *  and another thread in charge of receiving information.
     */
 
-    public static int numUsers;
+    
 
 
     public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException, InterruptedException{
         //get the localhost IP address, if server is running on some other IP, you need to use that
-        numUsers ++;
-        int clientNum = numUsers;
+        ChatServerWithThreads.addUser();
+        int clientNum = ChatServerWithThreads.numUsers;
         InetAddress host = InetAddress.getLocalHost();
-        Socket socket = new Socket(host.getHostName(), 52000);
+        Socket socket = new Socket(host.getHostName(), 52002);
             //write to socket using ObjectOutputStream
         ObjectOutputStream   oos = new ObjectOutputStream(socket.getOutputStream());
-        Scanner input = new Scanner(System.in);
-        String line ="";
+        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        String line = "";
         JFrame frame = new JFrame("Chat Client");
+        frame.setLayout(new FlowLayout());
         JTextField textField = new JTextField(20); 
-        JLabel label = new JLabel("Message will apear here");
-        
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(label, BorderLayout.NORTH);
-        panel.add(textField, BorderLayout.CENTER);
-        
-        frame.add(panel);
-        frame.setSize(400, 100);
+        JTextArea label = new JTextArea(5,20);
+        label.setEditable(false);
+        label.setBackground(Color.lightGray);
+        frame.setSize(300, 200);
+        frame.add(label);
+        frame.add(textField);
+   
         frame.setVisible(true);
 
 
         textField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                label.setText("User " + clientNum + ": " + textField.getText());
+                try {
+                    oos.writeObject("User " + clientNum + ": " + textField.getText());
+                    oos.flush();
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                
                 textField.setText("");
             }
         });
-        while(!(line = input.nextLine()).equals("disconnect")){
-            oos.writeObject(line);
-            oos.flush();
+        while(true){
+            String input = (String)ois.readObject();
+            label.append(input + "\n");
         }
-        socket.shutdownOutput();
-        System.out.println("connection closed!");
+      
     }
 }

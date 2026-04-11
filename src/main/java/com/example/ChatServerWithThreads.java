@@ -17,7 +17,8 @@ import java.util.*;
  */
 public class ChatServerWithThreads {
 
-    public static final int LISTENING_PORT = 52000;
+    public static final int LISTENING_PORT = 52002;
+    public static int numUsers;
 
     public static void main(String[] args) {
 
@@ -45,7 +46,9 @@ public class ChatServerWithThreads {
 
     }  // end main()
 
-
+    public static void addUser(){
+        numUsers ++;
+    }
     /**
      *  Defines a thread that handles the connection with one
      *  client.
@@ -71,17 +74,22 @@ public class ChatServerWithThreads {
         public void run() {
             String clientAddress = client.getInetAddress().toString();
             while(true) {
+                int i=0;
 	            try {
 	            	String message = (String)ois.readObject();
-                    for(ConnectionHandler h : connectionList){
+                    while(i < connectionList.size()){
+                        ConnectionHandler h = connectionList.get(i);
                         h.oos.writeObject(message);
                         h.oos.flush();
+                        i++;
                     }
 	            }
-	            catch (Exception e){
-	                System.out.println("Error on connection with: " 
-	                        + clientAddress + ": " + e);
+	            catch (EOFException e){
+	                connectionList.remove(i);
 	            }
+                catch (Exception e){
+                    System.out.println("Cry");
+                }
             }
         }
     }
