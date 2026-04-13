@@ -64,7 +64,7 @@ public class SocketClientExample {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    oos.writeObject("User " + clientNum + ": " + textField.getText());
+                    oos.writeObject(textField.getText());
                     oos.flush();
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block

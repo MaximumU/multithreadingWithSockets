@@ -58,9 +58,13 @@ public class ChatServerWithThreads {
         Socket client;
         ObjectOutputStream oos;
         ObjectInputStream ois;
+        public static int idNum;
+        String name;
 
         ConnectionHandler(Socket socket) {
             client = socket;
+            name = "User" + idNum;
+            idNum ++;
             if(connectionList == null)
                 connectionList = new ArrayList<ConnectionHandler>();
             connectionList.add(this);
@@ -73,13 +77,14 @@ public class ChatServerWithThreads {
         }
         public void run() {
             String clientAddress = client.getInetAddress().toString();
+            
             while(true) {
                 int i=0;
 	            try {
 	            	String message = (String)ois.readObject();
                     while(i < connectionList.size()){
                         ConnectionHandler h = connectionList.get(i);
-                        h.oos.writeObject(message);
+                        h.oos.writeObject(name + ": " + message);
                         h.oos.flush();
                         i++;
                     }
